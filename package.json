@@ -24,9 +24,7 @@
     "react-dom": "16.13.1",
     "react-hot-loader": "4.12.20",
     "react-router": "^5.2.0",
-    "react-router-dom": "^5.2.0"
-  },
-  "devDependencies": {
+    "react-router-dom": "^5.2.0",
     "@babel/core": "7.9.0",
     "@babel/preset-env": "7.9.0",
     "@babel/preset-react": "7.9.4",
