@@ -56,7 +56,7 @@ class Home extends React.Component {
     }
 
    async handleScroll(event){
-       if(window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight)
+       if(window.scrollY + window.innerHeight >= document.body.scrollHeight)
         {
            await this.setState({
                 pageNo:this.state.pageNo+1,
@@ -74,6 +74,7 @@ class Home extends React.Component {
             products:res.products,
             isLoading:false
         });
+        console.log(this.state.products.length)
     }
 
   
