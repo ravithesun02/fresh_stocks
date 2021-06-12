@@ -7,9 +7,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import Template from './../template';
 
-import UserRoute from './routes/user.routes';
-
-import AuthRoute from './routes/auth.routes';
+import DataRoute from './routes/data.routes';
 
 //FOR SERVER SIDE RENDERING
 // 1.The following modules are required to render the React components and use renderToString :
@@ -48,12 +46,17 @@ app.use(helmet())
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors())
 
+app.use(function (req, res, next) {
+  res.setHeader(
+    'Content-Security-Policy',
+    " img-src *; frame-src 'self'"
+  );
+  next();
+});
+
 app.use('/dist', express.static(path.join(CURRENT_WORKING_DIR, 'dist')))
 
-app.use('/',UserRoute);
-app.use('/',AuthRoute);
-
-
+app.use('/api',DataRoute);
 app.get('*',(req,res)=>{
   const sheets=new ServerStyleSheets();
   const context={};

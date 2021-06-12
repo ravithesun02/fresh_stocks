@@ -1,39 +1,143 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
-import unicornbikeimg from './../assets/images/unicornbike.jpg';
-import { Card, CardContent, CardMedia, Typography } from '@material-ui/core';
+import { AppBar, Button, Card, CardContent, CardHeader, CardMedia, Grid, Paper, Toolbar, Typography, withStyles } from '@material-ui/core';
+import {loadData} from '../api/api-data';
 
-const useStyles=makeStyles(theme=>({
-    card:{
-        maxWidth:600,
-        margin:'auto',
-        marginTop:theme.spacing(5)
+const useStyles=theme=>({
+    root:{
+        flexGrow:1,
+        background: 'light-grey'
     },
-    title:{
-        padding:`${theme.spacing(3)} px ${theme.spacing(2.5)} px ${theme.spacing(2)} px`,
-        color:theme.palette.openTitle
+    paper:{
+        textAlign:'center'
     },
-    media:{
-    minHeight:400
-}
-}));
+    mainGrid:{  
+        spacing: 0,
+        justify: 'space-around',
+        paddingTop:'4%'
+    },
+    midGrid:{
+        padding:'2%',
+        justify:'space-evenly'
+    },
+    media: {
+        height: 0,
+        paddingTop: '56.25%', // 16:9
+      }
+});
 
-export default function Home()
-{
-    const classes=useStyles();
-    return (
-        <Card className={classes.card}>
-            <Typography variant="h6" className={classes.title}>
-            Home page
-            </Typography>
-            <CardMedia className={classes.media}
-                image={unicornbikeimg} title="Unicorn Bicycle"/>
-            <CardContent>
-                <Typography variant="body2" component="p">
-                    Welcome to the SOCIO home page.
-                </Typography>
-            </CardContent>
-        </Card>
-    )
+class Home extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state= {
+            pageNo : 1,
+            dataPerPage:0,
+            isLoading:true,
+            products:[]
+        }
+
+        this.handleScroll=this.handleScroll.bind(this);
+    }
+
+    async componentDidMount() {
+        let perPage=Math.ceil(window.innerHeight/300);
+       await this.setState({
+            dataPerPage:perPage
+        });
+       await this.loadCurrData(); 
+       window.addEventListener('scroll', this.handleScroll);
+
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll);
+    }
+
+   async handleScroll(event){
+       if(window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight)
+        {
+           await this.setState({
+                pageNo:this.state.pageNo+1,
+                isLoading:true
+            });
+
+            await this.loadCurrData();
+        }
+
+    }
+
+    async loadCurrData(){
+        let res=await loadData({pageNo:this.state.pageNo,dataPerPage:this.state.dataPerPage});
+        await this.setState({
+            products:res.products,
+            isLoading:false
+        });
+    }
+
+  
+
+    render() {
+        const {classes}=this.props;
+        return(
+            <div className={classes.root}>
+                <React.Fragment>
+                <AppBar position="fixed">
+                    <Toolbar>
+                        <Grid container justify="center">
+                        <h4>Fresh Stock</h4>
+                        </Grid>
+                    </Toolbar>
+                </AppBar>
+                <Toolbar />
+                </React.Fragment>
+               <Grid className={classes.mainGrid} container>
+               
+               {
+                    this.state.products.map((item,index)=>{
+                        return(
+                            <Grid key={index} md={4} xs={12} item style={{"padding":'1%'}}>
+                                <Card  className={classes.paper} elevation={3}>
+                                    <CardContent>
+                                        <Grid direction="row" container justify="space-around">
+                                            <h4>Gender : {item.gender}</h4>
+                                            <h4>Color : {item.primaryColour}</h4>
+                                        </Grid>
+                                    </CardContent>
+                                    <CardContent>
+                                        <img src={item.images[0].src} width="80%" height="50%" />
+                                    </CardContent>
+                                    <CardContent>
+                                        <Grid container direction="column">
+                                           <h4> {item.brand} </h4>
+                                           <h4> {item.productName} </h4> 
+                                           <h4> Cost : {item.price} </h4>
+                                           <Link to="/cart">
+                                           <Button color="primary" variant="contained">
+                                               Add To Cart
+                                           </Button>
+                                           </Link>
+                                        </Grid>
+                                    </CardContent>
+                                </Card>
+                                </Grid>
+                        )
+                    })
+                }
+
+                {
+                    this.state.isLoading && 
+                    <Grid item xs={12}>
+                        <h4>Loading . . .</h4>
+                    </Grid>
+                }
+                
+                </Grid> 
+            </div>
+        )
+    }
+
 }
+
+export default withStyles(useStyles)(Home);
