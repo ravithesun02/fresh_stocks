@@ -35,7 +35,8 @@ class Home extends React.Component {
             pageNo : 1,
             dataPerPage:0,
             isLoading:true,
-            products:[]
+            products:[],
+            hasMore:true
         }
 
         this.handleScroll=this.handleScroll.bind(this);
@@ -72,9 +73,13 @@ class Home extends React.Component {
         let res=await loadData({pageNo:this.state.pageNo,dataPerPage:this.state.dataPerPage});
         await this.setState({
             products:res.products,
-            isLoading:false
+            isLoading:false,
+            hasMore:res.hasMore
         });
-        console.log(this.state.products.length)
+
+        if(!this.state.hasMore) {
+            window.removeEventListener('scroll', this.handleScroll);
+        }
     }
 
   
@@ -128,7 +133,7 @@ class Home extends React.Component {
                 }
 
                 {
-                    this.state.isLoading && 
+                    this.state.isLoading && this.state.hasMore &&
                     <Grid item xs={12}>
                         <h4>Loading . . .</h4>
                     </Grid>

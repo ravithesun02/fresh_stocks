@@ -10,17 +10,18 @@ const loadData = async(req,res)=>{
        return res.status('400').json({error: 'Unbale to load data'});
     
    // console.log(data);
-
+   let hasMore = true;
     let pageNo = req.body.pageNo;
     let dataPerPage = req.body.dataPerPage;
     let totalData = pageNo * dataPerPage;
     let products;
     if(data.length <= totalData){
          products=data.slice(0,data.length);
+         hasMore=false;
     }
     else
      products = data.slice(0,totalData);
-    return res.status('200').json({products});
+    return res.status('200').json({hasMore,products});
 
 }
 
